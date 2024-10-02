@@ -4,7 +4,6 @@ const nodemailer = require("nodemailer");
 
 require("dotenv").config();
 
-// Configure nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -29,7 +28,6 @@ const createUser = async (req, res) => {
 
     // Create new user
     const newUser = await userModel.create(userInfo);
-    console.log("User created:", newUser);
 
     // Create email verification token
     const verificationToken = jwt.sign(
@@ -45,26 +43,21 @@ const createUser = async (req, res) => {
 
     // Send verification email
     const mailOptions = {
-      from: process.env.EMAIL_USERNAME,
-      to: newUser.email,
-      subject: "Verify Your Email",
+      from: process.env.EMAIL_USERNAME, // sender address
+      to: newUser.email, // user's email address
+      subject: "Verify Your Email", // Subject line
       html: `<p>Hello ${newUser.firstname},</p>
              <p>Thank you for registering! Please verify your email by clicking on the link below:</p>
-             <a href="${verificationLink}">Verify Email</a>`,
+             <a href="${verificationLink}">Verify Email</a>`, // HTML body
     };
 
-    await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        return res.status(500).json({
-          message: "Error sending verification email",
-          success: false,
-        });
-      }
-      console.log("Verification email sent:", info.response);
-    });
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log("Verification email sent.");
+    } catch (emailError) {
+      console.error("Error sending verification email:", emailError);
+    }
 
-    // Respond to client
     res.status(201).json({
       message: "User created successfully, verification email sent",
       newUser,
@@ -112,7 +105,7 @@ const login = async (req, res) => {
       success: false,
     });
   }
-  console.log("Password from request:", logInfo.password);
+
   // Check if the user has verified their email
   if (user.isVerified === false) {
     return res.status(403).json({
@@ -121,12 +114,7 @@ const login = async (req, res) => {
     });
   }
 
-  // const validPassword = await user.isValidPassword(logInfo.password);
-  const validPassword = await user.isValidPassword(logInfo.password.trim());
-
-  console.log("Password from request:", logInfo.password);
-  console.log("Stored hashed password:", user.password);
-  console.log("Password validation result:", validPassword);
+  const validPassword = await user.isValidPassword(logInfo.password);
   if (!validPassword) {
     return res.status(422).json({
       message: "Email or password is incorrect",
