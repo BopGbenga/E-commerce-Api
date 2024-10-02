@@ -53,7 +53,6 @@ const createUser = async (req, res) => {
 
     try {
       await transporter.sendMail(mailOptions);
-      console.log("Verification email sent.");
     } catch (emailError) {
       console.error("Error sending verification email:", emailError);
     }
