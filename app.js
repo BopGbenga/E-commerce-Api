@@ -41,9 +41,6 @@ app.use((req, res) => {
   res.status(500).json({ message: err.message });
 });
 
-app.use("/todo", todoRoute);
-app.use("/user", userRoute);
-
 app.get("*", (req, res) => {
   res.status(404).send("Route does not exist");
 });
