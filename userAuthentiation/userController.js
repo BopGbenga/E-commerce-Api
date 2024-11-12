@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
     // Create email verification token
     const verificationToken = jwt.sign(
       { _id: newUser._id, email: newUser.email },
-      process.env.JWT_SECRET,
+      process.env.JWt_SECRET,
       { expiresIn: "8h" }
     );
 
@@ -76,7 +76,7 @@ const verifyEmail = async (req, res) => {
     const { token } = req.query;
 
     // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWt_SECRET);
 
     // Find the user and update their verification status
     const user = await userModel.findById(decoded._id);
@@ -122,7 +122,7 @@ const login = async (req, res) => {
 
   const token = jwt.sign(
     { _id: user._id, email: user.email, isAdmin: user.isAdmin },
-    process.env.JWT_SECRET,
+    process.env.JWt_SECRET,
     { expiresIn: "8h" }
   );
 
